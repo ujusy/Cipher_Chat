@@ -158,7 +158,7 @@ public class Server {
                     try {
                         System.out.print(">");
                         String sendData = in.nextLine();
-                        dataOutputStream.writeUTF(sendData);//연결된 출력스트림에 메세지 실어보냄
+                        dataOutputStream.writeUTF(sendData);
                         if(sendData.equals("exit"))
                             isThread = false;
                     } catch (Exception e) {
@@ -185,14 +185,7 @@ public class Server {
         byte[] encryptData = cipher.doFinal(plainData);
         return encryptData;
     }
-//    public static byte[] encrypt(byte[] secretKey,byte[] ivParameterSpec, byte[] encryptData) throws GeneralSecurityException {
-//        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-//        SecretKeySpec skeySpec = new SecretKeySpec(secretKey,0,secretKey.length, "AES");
-//        IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
-//        cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivParameterSpec1);
-//        byte[] plainData = cipher.doFinal(encryptData);
-//        return plainData;
-//    }
+
     public static byte[] decrypt(SecretKey secretKey, IvParameterSpec
             ivParameterSpec, byte[] encryptData) throws GeneralSecurityException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -200,14 +193,7 @@ public class Server {
         byte[] plainData = cipher.doFinal(encryptData);
         return plainData;
     }
-//    public static byte[] decrypt(byte[] secretKey,byte[] ivParameterSpec, byte[] encryptData) throws GeneralSecurityException {
-//        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-//        SecretKeySpec skeySpec = new SecretKeySpec(secretKey, "AES");
-//        IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
-//        cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivParameterSpec1);
-//        byte[] plainData = cipher.doFinal(encryptData);
-//        return plainData;
-//    }
+
     // RSA 암호화 함수
     public static byte[] encrypt(PublicKey publicKey, byte[] plainData)
             throws GeneralSecurityException {
@@ -229,8 +215,7 @@ public class Server {
 
     public static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
-
-        @SuppressWarnings("resource")
+        
         Formatter formatter = new Formatter(sb);
         for (byte b : bytes) {
             formatter.format("%02x", b);
