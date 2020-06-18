@@ -42,7 +42,7 @@ public class Server {
 
             serverSocket = new ServerSocket(10004);
             clientSocket = serverSocket.accept();
-            System.out.println("클라이언트 소켓 연결");
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,11 +69,11 @@ public class Server {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
             generator.initialize(2048);
             Charset charset = Charset.forName("UTF-8");
+
             KeyPair pair = generator.generateKeyPair();
             PublicKey publicKey = pair.getPublic();
             PrivateKey privateKey = pair.getPrivate();
-            System.out.println("공개키 포맷 : " + publicKey.getFormat());
-            System.out.println("개인키 포맷 : " + privateKey.getFormat());
+
             System.out.println("> Creating RSA key Pair ...");
             System.out.println("Private Key: "+bytesToHex(privateKey.getEncoded()));
             System.out.println("Public Key: "+bytesToHex(publicKey.getEncoded()));
@@ -82,15 +82,17 @@ public class Server {
             byte[] privateKeyBytes = privateKey.getEncoded();
 
             sender.writeObject(publicKey);
-            System.out.println(" 데이터를 전송했습니다.");
+            System.out.println();
+            System.out.println();
 //            SecretKey secretKey = (SecretKey)receiver.readObject();
             byte[] encryptKey1 = (byte[])receiver.readObject();
 //            IvParameterSpec ivParameterSpec =(IvParameterSpec)receiver.readObject();
             byte[] encryptKey2 = (byte[])receiver.readObject();
             System.out.println("> Received AES Key : "+bytesToHex(encryptKey1));
-            System.out.println("> Received IV : "+bytesToHex(encryptKey2));
             byte[] decryptKey1 = decrypt(privateKey, encryptKey1);
             System.out.println("Decrypted AES Key : "+bytesToHex(decryptKey1));
+
+            System.out.println("> Received IV : "+bytesToHex(encryptKey2));
             byte[] decryptKey2 = decrypt(privateKey, encryptKey2);
             System.out.println("Decrypted IV : "+bytesToHex(decryptKey2));
 
@@ -141,6 +143,8 @@ public class Server {
                         else{
                             System.out.println("Received : "+str);
                             System.out.println("Encrypted Message :"+ "\""+bytesToHex(decryptData)+"\"");
+                            System.out.println();
+                            System.out.println();
                             System.out.print(">");
                         }
 
@@ -163,6 +167,8 @@ public class Server {
             public void run() {
                 while(isThread){
                     try {
+                        System.out.println();
+                        System.out.println();
                         System.out.print(">");
                         String sendData = in.nextLine();
                         SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");

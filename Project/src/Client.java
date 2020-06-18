@@ -44,7 +44,7 @@ public class Client {
             sender = new ObjectOutputStream(clientSocket.getOutputStream());
             receiver = new ObjectInputStream(clientSocket.getInputStream());
             publicKey = (PublicKey)receiver.readObject();
-            System.out.println("서버로부터 받은 메세지 : " + publicKey);
+
             System.out.println("> Received Public Key  : " + bytesToHex(publicKey.getEncoded()));
 
 
@@ -54,19 +54,22 @@ public class Client {
             IvParameterSpec ivParameterSpec = new IvParameterSpec(ivData);
             Charset charset = Charset.forName("UTF-8");
 
-            System.out.println("IV는: "+bytesToHex(ivParameterSpec.getIV()));
+
 
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             keyGenerator.init(256);
             SecretKey secretKey = keyGenerator.generateKey();
             byte[] printKey = secretKey.getEncoded();
-
+            System.out.println();
             System.out.println("> Creating AES 256b key ...");
+            System.out.println("IV: "+bytesToHex(ivParameterSpec.getIV()));
+            System.out.println();
             System.out.println("AES 256 Key : "+bytesToHex(printKey));
             byte[] encryptKey1 = encrypt(publicKey, printKey);
             byte[] encryptKey2 = encrypt(publicKey, ivParameterSpec.getIV());
             sender.writeObject(encryptKey1);
             sender.writeObject(encryptKey2);
+            System.out.println();
             System.out.println("Encrypted AES Key : "+bytesToHex(encryptKey1));
             System.out.println("Encrypted IV : "+bytesToHex(encryptKey2));
 
@@ -97,6 +100,8 @@ public class Client {
             public void run() {
                 while(isThread){
                     try {
+                        System.out.println();
+                        System.out.println();
                         System.out.print(">");
                         String sendData = in.nextLine();
                         SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
@@ -139,6 +144,8 @@ public class Client {
                         else{
                             System.out.println("Received : "+str);
                             System.out.println("Encrypted Message :"+ "\""+bytesToHex(decryptData)+"\"");
+                            System.out.println();
+                            System.out.println();
                             System.out.print(">");
                         }
 
