@@ -9,16 +9,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.*;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Formatter;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -27,7 +21,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+
 
 public class Server {
     private ServerSocket serverSocket;
@@ -42,20 +36,12 @@ public class Server {
 
     ObjectOutputStream sender = null;
     ObjectInputStream receiver = null;
-    //1. 데이터를 지속적으로 송신해줄 스레드
-    //2. 데이터를 지속적으로 수신해줄 스레드
-    //이 두가지 작업을 지속적으로 해줄 스레드가 필요함
 
     public void serverSetting() {
-        try {//생성과 바인드. IP주소를 안주면 localhost가 default 값.
+        try {
 
             serverSocket = new ServerSocket(10004);
             clientSocket = serverSocket.accept();
-
-
-            // 어셉트의 결과로 클라이언트가 접속하면 해당 클라이언트를 관리할 소켓을 생성하여 리턴. 이걸  clientSocket에 받음.
-            //실질적으로 소켓에 접속 완료된 시점
-
             System.out.println("클라이언트 소켓 연결");
 
         } catch (Exception e) {
@@ -65,7 +51,6 @@ public class Server {
 
     public void closeAll() {
         try {
-            //소켓 사용 후 반납
             sender.close();
             receiver.close();
             clientSocket.close();
@@ -117,8 +102,8 @@ public class Server {
     }
     public void StreamSetting() {
         try {
-            dataInputStream = new DataInputStream(clientSocket.getInputStream());          // clientSocket에 InputStream 객체를 연결
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());        //clientSocket에 OutputStream 객체를 연결
+            dataInputStream = new DataInputStream(clientSocket.getInputStream());
+            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
 
         }catch(Exception e) {
@@ -133,22 +118,32 @@ public class Server {
             public void run() {
                 while(isThread) {
                     try {
-                        String recvData = dataInputStream.readUTF();  //연결된 InputSteram 객체의 readUTF 메소드를 호출하여 데이터 읽어들임
-                        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
-                        Date date= new Date();
-                        String today = formatter.format(date);
-                        String recvData1 =recvData + " [" + today + "]";
-                        System.out.println("Received : "+recvData1);
+                        byte[] recvData = (byte[])receiver.readObject();
+
                         SecretKeySpec skeySpec = new SecretKeySpec(secretKey,0,secretKey.length ,"AES");
                         IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
-                        byte[] encryptData = encrypt(skeySpec, ivParameterSpec1, recvData1.getBytes(charset));
-                        System.out.println("Encrypted Message :"+bytesToHex(encryptData));
-                        if(recvData.equals("exit")){
-                            dataOutputStream.writeUTF("exit");
+
+                        byte[] decryptData = decrypt(skeySpec, ivParameterSpec1, recvData);
+                        String str = new String(decryptData,"UTF-8");
+                        String result = str.substring(1,5);
+                        if(result.equals("exit"))
+                        {
+                            SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+                            Date date= new Date();
+                            String today = formatter.format(date);
+                            String sendData1 ="\""+result + "\"" + " [" + today + "]";
+                            byte[] encryptData = encrypt(skeySpec, ivParameterSpec1, sendData1.getBytes(charset));
+                            System.out.println("Received : "+str);
+                            System.out.println("Encrypted Message :"+ "\""+bytesToHex(decryptData)+"\"");
+                            sender.writeObject(encryptData);
                             isThread = false;
                         }
-                        else
+                        else{
+                            System.out.println("Received : "+str);
+                            System.out.println("Encrypted Message :"+ "\""+bytesToHex(decryptData)+"\"");
                             System.out.print(">");
+                        }
+
 
                     } catch (Exception e) {
                     }
@@ -170,7 +165,14 @@ public class Server {
                     try {
                         System.out.print(">");
                         String sendData = in.nextLine();
-                        dataOutputStream.writeUTF(sendData);
+                        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+                        Date date= new Date();
+                        String today = formatter.format(date);
+                        String sendData1 ="\""+sendData + "\"" + " [" + today + "]";
+                        SecretKeySpec skeySpec = new SecretKeySpec(secretKey,0,secretKey.length ,"AES");
+                        IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
+                        byte[] encryptData = encrypt(skeySpec, ivParameterSpec1, sendData1.getBytes(charset));
+                        sender.writeObject(encryptData);
                     } catch (Exception e) {
                     }
                 }
@@ -182,8 +184,6 @@ public class Server {
         serverSetting();
         keySetting();
         StreamSetting();
-        //dataRecv();
-//        dataSend();
     }
     public static void main(String[] args) {
         new Server();
@@ -204,7 +204,6 @@ public class Server {
         return plainData;
     }
 
-    // RSA 암호화 함수
     public static byte[] encrypt(PublicKey publicKey, byte[] plainData)
             throws GeneralSecurityException {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
@@ -213,7 +212,6 @@ public class Server {
         return encryptData;
     }
 
-    // RSA 복호화 함수
     public static byte[] decrypt(PrivateKey privateKey, byte[] encryptData)
             throws GeneralSecurityException {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
