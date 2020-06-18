@@ -30,10 +30,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Server {
-    private ServerSocket serverSocket; //서버 소켓(서비스를 제공하기 위한 용도) 생성
-    private Socket clientSocket;//들어오는 정보가 저장되는, 클라이언트와 통신을 위한 소켓
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
 
-    private DataInputStream dataInputStream;//서버가 받은 데이터
+
+    //서버 소켓(서비스를 제공하기 위한 용도) 생성
+    //들어오는 정보가 저장되는, 클라이언트와 통신을 위한 소켓
+
+    private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
     ObjectOutputStream sender = null;
@@ -43,9 +47,13 @@ public class Server {
     //이 두가지 작업을 지속적으로 해줄 스레드가 필요함
 
     public void serverSetting() {
-        try {
-            serverSocket = new ServerSocket(10004);//생성과 바인드. IP주소를 안주면 localhost가 default 값.
-            clientSocket = serverSocket.accept(); // 어셉트의 결과로 클라이언트가 접속하면 해당 클라이언트를 관리할 소켓을 생성하여 리턴. 이걸  clientSocket에 받음.
+        try {//생성과 바인드. IP주소를 안주면 localhost가 default 값.
+
+            serverSocket = new ServerSocket(10004);
+            clientSocket = serverSocket.accept();
+
+
+            // 어셉트의 결과로 클라이언트가 접속하면 해당 클라이언트를 관리할 소켓을 생성하여 리턴. 이걸  clientSocket에 받음.
             //실질적으로 소켓에 접속 완료된 시점
 
             System.out.println("클라이언트 소켓 연결");
@@ -63,6 +71,7 @@ public class Server {
             clientSocket.close();
             dataInputStream.close();
             dataOutputStream.close();
+            serverSocket.close();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -71,6 +80,7 @@ public class Server {
         try {
             sender = new ObjectOutputStream(clientSocket.getOutputStream());
             receiver = new ObjectInputStream(clientSocket.getInputStream());
+
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
             generator.initialize(2048);
             Charset charset = Charset.forName("UTF-8");
@@ -99,7 +109,7 @@ public class Server {
             byte[] decryptKey2 = decrypt(privateKey, encryptKey2);
             System.out.println("Decrypted IV : "+bytesToHex(decryptKey2));
 
-
+            dataSend(decryptKey1,decryptKey2,charset);
             dataRecv(decryptKey1,decryptKey2,charset);
         }catch(Exception e) {
             e.printStackTrace();
@@ -107,8 +117,8 @@ public class Server {
     }
     public void StreamSetting() {
         try {
-            dataInputStream = new DataInputStream(clientSocket.getInputStream()); // clientSocket에 InputStream 객체를 연결
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream()); //clientSocket에 OutputStream 객체를 연결
+            dataInputStream = new DataInputStream(clientSocket.getInputStream());          // clientSocket에 InputStream 객체를 연결
+            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());        //clientSocket에 OutputStream 객체를 연결
 
 
         }catch(Exception e) {
@@ -123,7 +133,7 @@ public class Server {
             public void run() {
                 while(isThread) {
                     try {
-                        String recvData = dataInputStream.readUTF();//연결된 InputSteram 객체의 readUTF 메소드를 호출하여 데이터 읽어들임
+                        String recvData = dataInputStream.readUTF();  //연결된 InputSteram 객체의 readUTF 메소드를 호출하여 데이터 읽어들임
                         SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
                         Date date= new Date();
                         String today = formatter.format(date);
@@ -133,8 +143,10 @@ public class Server {
                         IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
                         byte[] encryptData = encrypt(skeySpec, ivParameterSpec1, recvData1.getBytes(charset));
                         System.out.println("Encrypted Message :"+bytesToHex(encryptData));
-                        if(recvData.equals("exit"))
+                        if(recvData.equals("exit")){
+                            dataOutputStream.writeUTF("exit");
                             isThread = false;
+                        }
                         else
                             System.out.print(">");
 
@@ -148,7 +160,7 @@ public class Server {
         }).start();
     }
 
-    public void dataSend() {
+    public void dataSend(byte[] secretKey,byte[] ivParameterSpec,Charset charset) {
         new Thread(new Runnable() {
             Scanner in = new Scanner(System.in);
             boolean isThread = true;
@@ -159,8 +171,6 @@ public class Server {
                         System.out.print(">");
                         String sendData = in.nextLine();
                         dataOutputStream.writeUTF(sendData);
-                        if(sendData.equals("exit"))
-                            isThread = false;
                     } catch (Exception e) {
                     }
                 }
@@ -173,7 +183,7 @@ public class Server {
         keySetting();
         StreamSetting();
         //dataRecv();
-        dataSend();
+//        dataSend();
     }
     public static void main(String[] args) {
         new Server();
@@ -215,7 +225,7 @@ public class Server {
 
     public static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
-        
+
         Formatter formatter = new Formatter(sb);
         for (byte b : bytes) {
             formatter.format("%02x", b);

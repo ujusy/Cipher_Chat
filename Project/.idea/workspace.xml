@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0261e33d-7c19-4d68-a047-b48d34323c7c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -58,7 +64,7 @@
       <option name="presentableId" value="Default" />
       <updated>1591787572741</updated>
       <workItem from="1591787574551" duration="31597000" />
-      <workItem from="1592411783495" duration="1638000" />
+      <workItem from="1592411783495" duration="9497000" />
     </task>
     <servers />
   </component>

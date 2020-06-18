@@ -50,7 +50,8 @@ public class Client {
         }
     }
 
-    public void dataSend() {
+    public void dataSend(SecretKey secretKey,IvParameterSpec
+            ivParameterSpec,Charset charset) {
         new Thread(new Runnable() {
             Scanner in = new Scanner(System.in);
             boolean isThread = true;
@@ -60,9 +61,14 @@ public class Client {
                     try {
                         System.out.print(">");
                         String sendData = in.nextLine();
-                        dataOutputStream.writeUTF(sendData);
-                        if(sendData.equals("exit"))
-                            isThread = false;
+                        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+                        Date date= new Date();
+                        String today = formatter.format(date);
+                        String sendData1 =sendData + " [" + today + "]";
+                        byte[] encryptData = encrypt(secretKey, ivParameterSpec, sendData1.getBytes(charset));
+                        dataOutputStream.writeUTF(encryptData.toString());
+//                        if(sendData.equals("exit"))
+//                            isThread = false;
                     } catch (Exception e) {
                     }
                 }
@@ -70,7 +76,8 @@ public class Client {
         }).start();
     }
 
-    public void dataRecv(byte[] secretKey,byte[] ivParameterSpec,Charset charset) {
+    public void dataRecv(SecretKey secretKey,IvParameterSpec
+            ivParameterSpec,Charset charset) {
         new Thread(new Runnable() {
             boolean isThread = true;
             @Override
@@ -78,17 +85,21 @@ public class Client {
                 while(isThread) {
                     try {
                         String recvData = dataInputStream.readUTF();//연결된 InputSteram 객체의 readUTF 메소드를 호출하여 데이터 읽어들임
-                        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
-                        Date date= new Date();
-                        String today = formatter.format(date);
-                        String recvData1 =recvData + " [" + today + "]";
-                        System.out.println("Received : "+recvData1);
-                        SecretKeySpec skeySpec = new SecretKeySpec(secretKey,0,secretKey.length ,"AES");
-                        IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
-                        byte[] encryptData = encrypt(skeySpec, ivParameterSpec1, recvData1.getBytes(charset));
+//                        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+//                        Date date= new Date();
+//                        String today = formatter.format(date);
+//                        String recvData1 =recvData + " [" + today + "]";
+//                        System.out.println("Received : "+recvData1);
+//                        SecretKeySpec skeySpec = new SecretKeySpec(secretKey,0,secretKey.length ,"AES");
+//                        IvParameterSpec ivParameterSpec1 = new IvParameterSpec(ivParameterSpec);
+                        byte[] encryptData = decrypt(secretKey, ivParameterSpec, recvData.getBytes(charset));
+                        System.out.println("Received : "+recvData);
                         System.out.println("Encrypted Message :"+bytesToHex(encryptData));
                         if(recvData.equals("exit"))
+                        {
+                            dataOutputStream.writeUTF("exit");
                             isThread = false;
+                        }
                         else
                             System.out.print(">");
 
@@ -109,9 +120,7 @@ public class Client {
             publicKey = (PublicKey)receiver.readObject();
             System.out.println("서버로부터 받은 메세지 : " + publicKey);
             System.out.println("> Received Public Key  : " + bytesToHex(publicKey.getEncoded()));
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-            keyGenerator.init(256);
-            SecretKey secretKey = keyGenerator.generateKey();
+
 
             SecureRandom random = new SecureRandom();
             byte[] ivData = new byte[16]; // 128 bit
@@ -121,7 +130,11 @@ public class Client {
 
             System.out.println("IV는: "+bytesToHex(ivParameterSpec.getIV()));
 
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(256);
+            SecretKey secretKey = keyGenerator.generateKey();
             byte[] printKey = secretKey.getEncoded();
+
             System.out.println("> Creating AES 256b key ...");
             System.out.println("AES 256 Key : "+bytesToHex(printKey));
             byte[] encryptKey1 = encrypt(publicKey, printKey);
@@ -130,7 +143,8 @@ public class Client {
             System.out.println("Encrypted IV : "+bytesToHex(encryptKey2));
             sender.writeObject(encryptKey1);
             sender.writeObject(encryptKey2);
-            dataRecv(printKey,ivParameterSpec.getIV(),charset);
+            dataRecv(secretKey,ivParameterSpec,charset);
+            dataSend(secretKey,ivParameterSpec,charset);
             System.out.println();
 
         }catch(Exception e) {
@@ -166,7 +180,7 @@ public class Client {
         connect();
         keySetting();
         StreamSetting();
-        dataSend();
+//        dataSend();
 //        dataRecv();
     }
 
