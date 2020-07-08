@@ -58,9 +58,9 @@
    >
    >  <img width="785" alt="image-20200708214536418" src="https://user-images.githubusercontent.com/49120090/86920442-c5f0bb80-c164-11ea-8fa1-41a390d61aec.png">
 
-   3. 통신
+3. 통신
 
-     ><img width="788" alt="image-20200708214615531" src="https://user-images.githubusercontent.com/49120090/86920461-ce48f680-c164-11ea-9ada-7da2060fbe4c.png">
+    ><img width="788" alt="image-20200708214615531" src="https://user-images.githubusercontent.com/49120090/86920461-ce48f680-c164-11ea-9ada-7da2060fbe4c.png">
 
    
 
