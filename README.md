@@ -12,7 +12,7 @@
 
 ### Structure
 
-![image-20200708211852231](/Users/uju_sy/Library/Application Support/typora-user-images/image-20200708211852231.png)
+<img width="518" alt="image-20200708211852231" src="https://user-images.githubusercontent.com/49120090/86920383-b07b9180-c164-11ea-96a6-f15030c23381.png">
 
 ### Detail Implementation
 
@@ -50,16 +50,17 @@
 
    >- RSA Key pair 출력(Client 접속 후)
    >
-   >  ![image-20200708214423559](/Users/uju_sy/Library/Application Support/typora-user-images/image-20200708214423559.png)
+   >  <img width="1624" alt="image-20200708214423559" src="https://user-images.githubusercontent.com/49120090/86920420-bcffea00-c164-11ea-8ce0-189d7e559861.png">
 
 2. Client.java
 
    >+ Client 접속 후
    >
-   >  ![image-20200708214536418](/Users/uju_sy/Library/Application Support/typora-user-images/image-20200708214536418.png)
+   >  <img width="785" alt="image-20200708214536418" src="https://user-images.githubusercontent.com/49120090/86920442-c5f0bb80-c164-11ea-8fa1-41a390d61aec.png">
 
    3. 통신
 
-     >![image-20200708214615531](/Users/uju_sy/Library/Application Support/typora-user-images/image-20200708214615531.png)
+     ><img width="788" alt="image-20200708214615531" src="https://user-images.githubusercontent.com/49120090/86920461-ce48f680-c164-11ea-9ada-7da2060fbe4c.png">
 
    
+
