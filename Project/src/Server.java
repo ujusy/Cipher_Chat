@@ -26,11 +26,6 @@ import java.text.SimpleDateFormat;
 public class Server {
     private ServerSocket serverSocket;
     private Socket clientSocket;
-
-
-    //서버 소켓(서비스를 제공하기 위한 용도) 생성
-    //들어오는 정보가 저장되는, 클라이언트와 통신을 위한 소켓
-
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
@@ -84,9 +79,7 @@ public class Server {
             sender.writeObject(publicKey);
             System.out.println();
             System.out.println();
-//            SecretKey secretKey = (SecretKey)receiver.readObject();
             byte[] encryptKey1 = (byte[])receiver.readObject();
-//            IvParameterSpec ivParameterSpec =(IvParameterSpec)receiver.readObject();
             byte[] encryptKey2 = (byte[])receiver.readObject();
             System.out.println("> Received AES Key : "+bytesToHex(encryptKey1));
             byte[] decryptKey1 = decrypt(privateKey, encryptKey1);
